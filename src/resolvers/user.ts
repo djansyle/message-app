@@ -5,6 +5,7 @@ import { omit } from 'ramda';
 import { CreateUserInputType } from '../types/user.type.js';
 
 import {
+  InvalidEmailAddressFormatError,
   UnauthorizedError,
   UserAlreadyExistsError,
 } from '../library/graphql-errors.js';
@@ -14,6 +15,11 @@ import UserModel from '../models/user.js';
 export default {
   Mutation: {
     async signup(_: any, args: { input: CreateUserInputType }) {
+      const result = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.exec(args.input.email);
+      if (!result) {
+        throw new InvalidEmailAddressFormatError();
+      }
+
       const [error] = await tryToCatch(async () => {
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(args.input.password, salt);

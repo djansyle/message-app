@@ -109,5 +109,26 @@ describe('User', function () {
         'USER_ALREADY_EXISTS',
       );
     });
+
+    it('SHOULD not be able to create with an invalid email format', async function() {
+      const email = 'invalid-email';
+      const request = await client();
+      const password = chance.word();
+
+      const [error] = await tryToCatch(request.mutate, {
+        mutation: signupMutation,
+        variables: {
+          input: {
+            email,
+            password,
+          },
+        },
+      });
+
+      expect(error).toBeDefined();
+      expect(path(['graphQLErrors', 0, 'code'], error)).toBe(
+        'INVALID_EMAIL_ADDRESS_FORMAT',
+      );
+    });
   });
 });

@@ -30,6 +30,16 @@ export class UserAlreadyExistsError extends GraphQLError {
   }
 }
 
+export class InvalidEmailAddressFormatError extends GraphQLError {
+  constructor() {
+    super('Invalid email address format', {
+      extensions: {
+        code: 'INVALID_EMAIL_ADDRESS_FORMAT',
+      },
+    });
+  }
+}
+
 export class UserNotFoundError extends GraphQLError {
   constructor() {
     super('User not found', {

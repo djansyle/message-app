@@ -31,11 +31,7 @@ export default `#graphql
   type Channel {
     id: ID!
     owner: User!
-
-    membersConnection(
-      first: Int,
-      after: String
-    ): ChannelMembersConnection!
+    name: String!
   }
 
   type ChannelEdge {
@@ -51,6 +47,10 @@ export default `#graphql
   type Query {
     me: User!
     channels(first: Int, after: String): ChannelConnection!
+    channelMembers(
+      first: Int,
+      after: String
+    ): ChannelMembersConnection!
   }
 
   type Mutation {
@@ -58,6 +58,8 @@ export default `#graphql
     logout: Boolean!
 
     signup(input: CreateUserInput!): Boolean
+
+    createChannel(name: String!): Channel!
     sendMessage(channelId: ID!, text: String!): Boolean
   }
 
