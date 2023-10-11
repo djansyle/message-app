@@ -2,11 +2,13 @@ import tryToCatch from 'try-to-catch';
 import bcrypt from 'bcrypt';
 
 import {
-  InvalidCredentials,
+  InvalidCredentialsError,
   ServerError,
   UnauthorizedError,
 } from '../library/graphql-errors.js';
 import * as jwt from '../library/jwt.js';
+
+import { Context } from '../types/common.type.js';
 import UserModel from '../models/user.js';
 import TokneModel from '../models/token.js';
 
@@ -22,7 +24,7 @@ export default {
       }
 
       if (!user) {
-        throw new InvalidCredentials();
+        throw new InvalidCredentialsError();
       }
 
       const [hashError, isPasswordValid] = await tryToCatch(() =>
@@ -34,7 +36,7 @@ export default {
       }
 
       if (!isPasswordValid) {
-        throw new InvalidCredentials();
+        throw new InvalidCredentialsError();
       }
 
       const accessToken = await jwt.sign({ id: user._id });
@@ -44,7 +46,7 @@ export default {
       };
     },
 
-    async logout(_: any, __: any, { user, token }: any) {
+    async logout(_: any, __: any, { user, token }: Context) {
       if (!user || !token) {
         throw new UnauthorizedError();
       }

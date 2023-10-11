@@ -1,11 +1,9 @@
 import { ApolloServerPlugin, HeaderMap } from '@apollo/server';
 import * as jwt from './jwt.js';
+import { Context } from '../types/common.type.js';
 import TokenModel from '../models/token.js';
 
-export default function (): ApolloServerPlugin<{
-  user?: { id: string };
-  token?: string;
-}> {
+export default function (): ApolloServerPlugin<Context> {
   return {
     async requestDidStart({ contextValue, request }) {
       const authorization = request.http.headers.get('authorization');

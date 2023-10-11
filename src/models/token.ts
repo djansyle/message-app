@@ -3,7 +3,7 @@ import ms from 'ms';
 
 const ThirtyDays = Math.floor(ms('30d') / 1000);
 
-export interface User extends Document {
+export interface Token {
   _id: string;
   revoked: boolean;
 }
@@ -23,4 +23,4 @@ const TokenSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model<User>('Token', TokenSchema);
+export default mongoose.model<Token & Document>('Token', TokenSchema);

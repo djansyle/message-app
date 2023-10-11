@@ -50,11 +50,21 @@ export class UserNotFoundError extends GraphQLError {
   }
 }
 
-export class InvalidCredentials extends GraphQLError {
+export class InvalidCredentialsError extends GraphQLError {
   constructor() {
     super('Invalid credentials', {
       extensions: {
         code: 'INVALID_CREDENTIALS',
+      },
+    });
+  }
+}
+
+export class ChannelAlreadyExistsError extends GraphQLError {
+  constructor() {
+    super('Channel already exists', {
+      extensions: {
+        code: 'CHANNEL_ALREADY_EXISTS',
       },
     });
   }
