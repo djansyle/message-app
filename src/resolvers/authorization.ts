@@ -46,7 +46,6 @@ export default {
 
     async logout(_: any, __: any, { user, token }: any) {
       if (!user || !token) {
-        console.log('invalid token');
         throw new UnauthorizedError();
       }
 
