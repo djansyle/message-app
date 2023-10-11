@@ -18,4 +18,4 @@ RUN npm --prefix message --omit=dev -f install
 COPY dist message
 COPY src/types message/types
 
-CMD [ "npm", "start" ]
+CMD ["npm", "start"]

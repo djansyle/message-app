@@ -1,7 +1,8 @@
-import { ApolloServerPlugin } from '@apollo/server';
+import { ApolloServerPlugin, HeaderMap } from '@apollo/server';
 import * as jwt from './jwt.js';
+import TokenModel from '../models/token.js';
 
-export default function (): ApolloServerPlugin<{ user?: { id: string } }> {
+export default function (): ApolloServerPlugin<{ user?: { id: string }; token?: string }> {
   return {
     async requestDidStart({ contextValue, request }) {
       const authorization = request.http.headers.get('authorization');
@@ -11,8 +12,12 @@ export default function (): ApolloServerPlugin<{ user?: { id: string } }> {
       }
 
       const [type, token] = authorization.split(' ');
-
       if (type.toLowerCase() !== 'bearer') {
+        return;
+      }
+
+      const tokenExists = await TokenModel.findOne({ _id: token }).lean();
+      if (!tokenExists || tokenExists.revoked) {
         return;
       }
 
@@ -22,6 +27,7 @@ export default function (): ApolloServerPlugin<{ user?: { id: string } }> {
       }
 
       contextValue.user = user;
+      contextValue.token = token;
     },
   };
 }
