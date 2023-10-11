@@ -13,7 +13,7 @@ const loginMutation = gql`
 `;
 
 describe('Authentication', () => {
-  describe('Mutation#Login', function() {
+  describe('Mutation#login', function() {
     it('SHOULD return an error WHEN user does not exists', async function () {
       const request = await client();
   
@@ -69,7 +69,7 @@ describe('Authentication', () => {
     });
   });
 
-  describe('Mutation#Logout', function() {
+  describe('Mutation#logout', function() {
     it('SHOULD return true GIVEN token is valid', async function() {
       const { accessToken } = await authenticateUser();
       const request = await client({
