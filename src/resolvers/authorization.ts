@@ -52,6 +52,6 @@ export default {
       await TokneModel.updateOne({ _id: token }, { $set: { revoked: true } });
 
       return true;
-    }
+    },
   },
 };
