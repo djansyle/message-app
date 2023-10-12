@@ -132,7 +132,7 @@ export default {
         },
       }).lean();
 
-      const sortedChannels = memberChannels.map((memberChannel) => {
+      const channelInfo = memberChannels.map((memberChannel) => {
         const channel = channels.find(
           (channel) => channel._id === memberChannel.channelId,
         );
@@ -150,11 +150,81 @@ export default {
           hasNext: memberChannels.length >= first,
         },
 
-        edges: sortedChannels.map((channel) => ({
+        edges: channelInfo.map((channel) => ({
           cursor: channel.cursorId,
           node: {
             id: channel._id,
             ...channel,
+          },
+        })),
+      };
+    },
+
+    async channelMembers(
+      _: any,
+      params: ConnectionParameters & { channelId: string },
+      { user }: Context,
+    ) {
+      if (!user) {
+        throw new UnauthorizedError();
+      }
+
+      let { first, after } = params;
+      if (!first) {
+        first = 10;
+      }
+
+      const query = {
+        channelId: params.channelId,
+      };
+
+      if (after) {
+        query['_id'] = { $gt: after };
+      }
+
+      const isChannelMember = await ChannelMemberModel.exists({
+        channelId: params.channelId,
+        userId: user.id,
+      });
+      if (!isChannelMember) {
+        throw new ChannelNotFoundError();
+      }
+
+      const channelMembers = await ChannelMemberModel.find(query)
+        .limit(first)
+        .sort({ _id: 1 })
+        .lean();
+      const total = await ChannelMemberModel.countDocuments(
+        omit(['_id'], query),
+      );
+
+      const users = await UserModel.find({
+        _id: {
+          $in: channelMembers.map((channelMember) => channelMember.userId),
+        },
+      }).lean();
+
+      const membersInfo = channelMembers.map((channelMember) => {
+        const user = users.find((user) => user._id === channelMember.userId);
+        return {
+          ...channelMember,
+          ...user,
+          cursorId: channelMember._id,
+          id: user._id,
+        };
+      });
+
+      return {
+        pageInfo: {
+          total,
+          hasNext: channelMembers.length >= first,
+        },
+
+        edges: membersInfo.map((member) => ({
+          cursor: member.cursorId,
+          node: {
+            id: member._id,
+            ...member,
           },
         })),
       };

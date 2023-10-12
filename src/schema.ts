@@ -48,6 +48,7 @@ export default `#graphql
     me: User!
     channels(first: Int, after: String): ChannelConnection!
     channelMembers(
+      channelId: ID!
       first: Int,
       after: String
     ): ChannelMembersConnection!

@@ -193,3 +193,50 @@ export async function listChannels(params?: {
     requestToken,
   };
 }
+
+export async function listChannelMembers(params: {
+  accessToken?: string;
+  channelId: string;
+  first?: number;
+  after?: string;
+}) {
+  const { accessToken: token } = await authenticateUser();
+  const requestToken = path(['accessToken'], params) || token;
+  const request = await client({
+    authorization: `Bearer ${requestToken}`,
+  });
+
+  const query = gql`
+    query ChannelMembers($channelId: ID!, $first: Int, $after: String) {
+      channelMembers(channelId: $channelId, first: $first, after: $after) {
+        pageInfo {
+          total
+          hasNext
+        }
+
+        edges {
+          cursor
+          node {
+            id
+            email
+          }
+        }
+      }
+    }
+  `;
+
+  const [error, response] = await tryToCatch(request.query, {
+    query,
+    variables: {
+      channelId: path(['channelId'], params),
+      first: path(['first'], params),
+      after: path(['after'], params),
+    },
+  });
+
+  return {
+    error,
+    response,
+    requestToken,
+  };
+}

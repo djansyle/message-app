@@ -1,4 +1,3 @@
-import { gql } from '@apollo/client';
 import R from 'ramda';
 
 import ChannelModel from '../models/channel';
@@ -12,6 +11,7 @@ import {
   addChannelMember,
   createUser,
   listChannels,
+  listChannelMembers,
 } from './helper';
 
 describe('Channel', function () {
@@ -173,7 +173,7 @@ describe('Channel', function () {
       expect(invitedChannelExists).toBeDefined();
     });
 
-    it('SHOULD be able to retrieve channels given first and after parameter', async function () {
+    it('SHOULD be able to retrieve channels GIVEN first and after parameter', async function () {
       const { accessToken: invitedUserToken, id } = await authenticateUser();
 
       await Promise.all(
@@ -232,6 +232,90 @@ describe('Channel', function () {
         expect.objectContaining({
           __typename: 'PageInfo',
           total: 10,
+          hasNext: false,
+        }),
+      );
+    });
+  });
+
+  describe('Query#channelMembers', function () {
+    it.only('SHOULD be able to list all the members of the channel', async function () {
+      const { accessToken, id } = await authenticateUser();
+
+      const { channelId } = await createChannel({ accessToken });
+      const member = await createUser();
+
+      await addChannelMember({
+        accessToken,
+        channelId,
+        userId: member.id,
+      });
+
+      const { response, error } = await listChannelMembers({
+        accessToken,
+        channelId,
+      });
+
+      expect(error).toBeNull();
+      expect(
+        R.intersection(
+          response.data.channelMembers.edges.map(R.path(['node', 'id'])),
+          [id, member.id],
+        ),
+      ).toHaveLength(2);
+    });
+
+    it.only('SHOULD be able to retrieve channels GIVEN first and after parameter', async function () {
+      const { accessToken } = await authenticateUser();
+
+      const { channelId } = await createChannel({ accessToken });
+
+      await Promise.all(
+        R.times(async () => {
+          const member = await createUser();
+
+          await addChannelMember({
+            accessToken,
+            channelId,
+            userId: member.id,
+          });
+        }, 10)
+      );
+      
+      const { response } = await listChannelMembers({
+        accessToken,
+        channelId,
+        first: 2,
+      });
+
+      expect(response.data.channelMembers.pageInfo).toMatchObject(
+        expect.objectContaining({
+          __typename: 'PageInfo',
+          total: 11,
+          hasNext: true,
+        }),
+      );
+
+      expect(response.data.channelMembers.edges).toHaveLength(2);
+
+      let nextCursor = response.data.channelMembers.edges[1].cursor;
+      const { response: response2 } = await listChannelMembers({
+        accessToken,
+        channelId,
+        first: 20,
+        after: nextCursor,
+      });
+
+      // ensure that response2 does not have the same id from response
+      const ids = response.data.channelMembers.edges.map(({ node }) => node.id);
+      const ids2 = response2.data.channelMembers.edges.map(({ node }) => node.id);
+      
+      expect(R.intersection(ids, ids2)).toHaveLength(0);
+
+      expect(response2.data.channelMembers.pageInfo).toMatchObject(
+        expect.objectContaining({
+          __typename: 'PageInfo',
+          total: 11,
           hasNext: false,
         }),
       );
