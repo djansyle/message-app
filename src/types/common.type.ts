@@ -4,3 +4,8 @@ export type Context = {
   };
   token?: string;
 };
+
+export type ConnectionParameters<T extends object = object> = {
+  first?: number;
+  after?: string;
+} & T;

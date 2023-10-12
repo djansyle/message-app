@@ -6,6 +6,7 @@ import tryToCatch from 'try-to-catch';
 
 import { app } from './global-hook';
 import UserModel from '../models/user.js';
+import { ConnectionParameters } from '../types/common.type';
 
 export async function client(headers?: Record<string, string>) {
   const { httpServer } = await app;
@@ -50,7 +51,7 @@ export async function createUser(email?: string) {
 }
 
 export async function authenticateUser() {
-  const { email, password } = await createUser();
+  const { email, password, id } = await createUser();
   const request = await client();
   const mutation = gql`
     mutation Login($email: String!, $password: String!) {
@@ -69,19 +70,23 @@ export async function authenticateUser() {
   });
 
   return {
+    id,
     email,
     password,
     accessToken: response.data.login.accessToken,
   };
 }
 
-export async function createChannel(params?: { accessToken?: string, name?: string }) {
+export async function createChannel(params?: {
+  accessToken?: string;
+  name?: string;
+}) {
   const { accessToken: token } = await authenticateUser();
-
   let requestToken = path(['accessToken'], params) || token;
   const request = await client({
     authorization: `Bearer ${requestToken}`,
   });
+
   const mutation = gql`
     mutation CreateChannel($name: String!) {
       createChannel(name: $name) {
@@ -108,7 +113,15 @@ export async function createChannel(params?: { accessToken?: string, name?: stri
   };
 }
 
-export async function addChannelMember(params?: { accessToken?: string, channelId: string; userId: string }) {
+export async function channels(
+  params: ConnectionParameters & { accessToken: string },
+) {}
+
+export async function addChannelMember(params?: {
+  accessToken?: string;
+  channelId: string;
+  userId: string;
+}) {
   const { accessToken: token } = await authenticateUser();
 
   const requestToken = path(['accessToken'], params) || token;
@@ -126,6 +139,51 @@ export async function addChannelMember(params?: { accessToken?: string, channelI
     variables: {
       channelId: path(['channelId'], params),
       userId: path(['userId'], params),
+    },
+  });
+
+  return {
+    error,
+    response,
+    requestToken,
+  };
+}
+
+export async function listChannels(params?: {
+  accessToken?: string;
+  first?: number;
+  after?: string;
+}) {
+  const { accessToken: token } = await authenticateUser();
+  const requestToken = path(['accessToken'], params) || token;
+  const request = await client({
+    authorization: `Bearer ${requestToken}`,
+  });
+
+  const query = gql`
+    query Channels($first: Int, $after: String) {
+      channels(first: $first, after: $after) {
+        pageInfo {
+          total
+          hasNext
+        }
+
+        edges {
+          cursor
+          node {
+            id
+            name
+          }
+        }
+      }
+    }
+  `;
+
+  const [error, response] = await tryToCatch(request.query, {
+    query,
+    variables: {
+      first: path(['first'], params),
+      after: path(['after'], params),
     },
   });
 

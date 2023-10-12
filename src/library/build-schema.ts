@@ -8,7 +8,11 @@ import AuthorizationResolver from '../resolvers/authorization.js';
 import ChannelResolver from '../resolvers/channel.js';
 
 export default () => {
-  const resolvers = mergeResolvers([UserResolver, AuthorizationResolver, ChannelResolver]);
+  const resolvers = mergeResolvers([
+    UserResolver,
+    AuthorizationResolver,
+    ChannelResolver,
+  ]);
 
   return makeExecutableSchema({ typeDefs, resolvers });
 };

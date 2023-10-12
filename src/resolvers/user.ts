@@ -15,7 +15,9 @@ import UserModel from '../models/user.js';
 export default {
   Mutation: {
     async signup(_: any, args: { input: CreateUserInputType }) {
-      const result = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.exec(args.input.email);
+      const result = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.exec(
+        args.input.email,
+      );
       if (!result) {
         throw new InvalidEmailAddressFormatError();
       }

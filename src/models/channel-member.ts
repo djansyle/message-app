@@ -26,4 +26,7 @@ const ChannelMemberSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model<ChannelMember & Document>('ChannelMember', ChannelMemberSchema);
+export default mongoose.model<ChannelMember & Document>(
+  'ChannelMember',
+  ChannelMemberSchema,
+);

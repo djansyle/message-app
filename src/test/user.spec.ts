@@ -110,7 +110,7 @@ describe('User', function () {
       );
     });
 
-    it('SHOULD not be able to create with an invalid email format', async function() {
+    it('SHOULD not be able to create with an invalid email format', async function () {
       const email = 'invalid-email';
       const request = await client();
       const password = chance.word();
