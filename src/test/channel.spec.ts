@@ -239,7 +239,7 @@ describe('Channel', function () {
   });
 
   describe('Query#channelMembers', function () {
-    it.only('SHOULD be able to list all the members of the channel', async function () {
+    it('SHOULD be able to list all the members of the channel', async function () {
       const { accessToken, id } = await authenticateUser();
 
       const { channelId } = await createChannel({ accessToken });
@@ -265,7 +265,7 @@ describe('Channel', function () {
       ).toHaveLength(2);
     });
 
-    it.only('SHOULD be able to retrieve channels GIVEN first and after parameter', async function () {
+    it('SHOULD be able to retrieve channels GIVEN first and after parameter', async function () {
       const { accessToken } = await authenticateUser();
 
       const { channelId } = await createChannel({ accessToken });

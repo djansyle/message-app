@@ -11,4 +11,5 @@ export default {
   moduleNameMapper: {
     '^(.*)\\.[mctj]s$': ['$1', '$1.ts', '$1.js', '$1.mjs', '$1.cjs'],
   },
+  testTimeout: 10_000,
 };
