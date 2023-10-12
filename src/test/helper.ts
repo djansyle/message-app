@@ -1,8 +1,11 @@
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import { AddressInfo } from 'net';
 import Chance from 'chance';
+import { path } from 'ramda';
+import tryToCatch from 'try-to-catch';
 
 import { app } from './global-hook';
+import UserModel from '../models/user.js';
 
 export async function client(headers?: Record<string, string>) {
   const { httpServer } = await app;
@@ -37,9 +40,12 @@ export async function createUser(email?: string) {
     },
   });
 
+  const user = await UserModel.findOne({ email: userEmail });
+  expect(user).toBeDefined();
   return {
     email: userEmail,
     password,
+    id: user._id,
   };
 }
 
@@ -66,5 +72,66 @@ export async function authenticateUser() {
     email,
     password,
     accessToken: response.data.login.accessToken,
+  };
+}
+
+export async function createChannel(params?: { accessToken?: string, name?: string }) {
+  const { accessToken: token } = await authenticateUser();
+
+  let requestToken = path(['accessToken'], params) || token;
+  const request = await client({
+    authorization: `Bearer ${requestToken}`,
+  });
+  const mutation = gql`
+    mutation CreateChannel($name: String!) {
+      createChannel(name: $name) {
+        id
+        name
+      }
+    }
+  `;
+
+  const channelName = path(['name'], params) || chance.word();
+  const [error, response] = await tryToCatch(request.mutate, {
+    mutation,
+    variables: {
+      name: channelName,
+    },
+  });
+
+  return {
+    error,
+    response,
+    channelName,
+    channelId: path(['data', 'createChannel', 'id'], response),
+    requestToken,
+  };
+}
+
+export async function addChannelMember(params?: { accessToken?: string, channelId: string; userId: string }) {
+  const { accessToken: token } = await authenticateUser();
+
+  const requestToken = path(['accessToken'], params) || token;
+  const request = await client({
+    authorization: `Bearer ${requestToken}`,
+  });
+  const mutation = gql`
+    mutation AddChannelMember($channelId: ID!, $userId: ID!) {
+      addChannelMember(channelId: $channelId, userId: $userId)
+    }
+  `;
+
+  const [error, response] = await tryToCatch(request.mutate, {
+    mutation,
+    variables: {
+      channelId: path(['channelId'], params),
+      userId: path(['userId'], params),
+    },
+  });
+
+  return {
+    error,
+    response,
+    requestToken,
   };
 }

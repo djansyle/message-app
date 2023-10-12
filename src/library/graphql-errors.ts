@@ -69,3 +69,23 @@ export class ChannelAlreadyExistsError extends GraphQLError {
     });
   }
 }
+
+export class ChannelNotFoundError extends GraphQLError {
+  constructor() {
+    super('Channel not found', {
+      extensions: {
+        code: 'CHANNEL_NOT_FOUND',
+      },
+    });
+  }
+}
+
+export class NotChannelOwnerError extends GraphQLError {
+  constructor() {
+    super('Not channel owner', {
+      extensions: {
+        code: 'NOT_CHANNEL_OWNER',
+      },
+    });
+  }
+}

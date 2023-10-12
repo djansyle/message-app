@@ -60,7 +60,8 @@ export default `#graphql
     signup(input: CreateUserInput!): Boolean
 
     createChannel(name: String!): Channel!
-    sendMessage(channelId: ID!, text: String!): Boolean
+    addChannelMember(channelId: ID!, userId: ID!): Boolean!
+    sendMessage(channelId: ID!, text: String!): Boolean!
   }
 
   schema {
