@@ -8,14 +8,14 @@ WORKDIR /app
 RUN addgroup --system message && \
           adduser --system -G message message
 
-COPY package.json /app/message/package.json
-COPY package-lock.json /app/message/package-lock.json
+COPY package.json /app/package.json
+COPY package-lock.json /app/package-lock.json
 
 RUN chown -R message:message .
 
-RUN npm --prefix message --omit=dev -f install
+COPY . /app
+RUN npm install && \
+    npm run build && \
+    npm prune --production
 
-COPY dist message
-COPY src/types message/types
-
-CMD ["npm", "start"]
+CMD ["node", "dist"]
