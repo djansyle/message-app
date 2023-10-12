@@ -279,9 +279,9 @@ describe('Channel', function () {
             channelId,
             userId: member.id,
           });
-        }, 10)
+        }, 10),
       );
-      
+
       const { response } = await listChannelMembers({
         accessToken,
         channelId,
@@ -308,8 +308,10 @@ describe('Channel', function () {
 
       // ensure that response2 does not have the same id from response
       const ids = response.data.channelMembers.edges.map(({ node }) => node.id);
-      const ids2 = response2.data.channelMembers.edges.map(({ node }) => node.id);
-      
+      const ids2 = response2.data.channelMembers.edges.map(
+        ({ node }) => node.id,
+      );
+
       expect(R.intersection(ids, ids2)).toHaveLength(0);
 
       expect(response2.data.channelMembers.pageInfo).toMatchObject(

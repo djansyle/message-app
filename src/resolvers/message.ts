@@ -1,7 +1,11 @@
 import * as uuid from 'uuid';
 import R from 'ramda';
 
-import { ChannelNotFoundError, NotChannelMemberError, UnauthorizedError } from '../library/graphql-errors';
+import {
+  ChannelNotFoundError,
+  NotChannelMemberError,
+  UnauthorizedError,
+} from '../library/graphql-errors.js';
 import UserModel from '../models/user.js';
 import ChannelModel from '../models/channel.js';
 
@@ -25,7 +29,10 @@ export default {
         throw new UnauthorizedError();
       }
 
-      const channelMember = await ChannelMemberModel.findOne({ channelId, userId: user.id });
+      const channelMember = await ChannelMemberModel.findOne({
+        channelId,
+        userId: user.id,
+      });
       if (!channelMember) {
         throw new UnauthorizedError();
       }
@@ -38,11 +45,15 @@ export default {
       });
 
       return true;
-    }
+    },
   },
 
   Query: {
-    async messages(_: any, params: ConnectionParameters<{ channelId: string }>, { user }) {
+    async messages(
+      _: any,
+      params: ConnectionParameters<{ channelId: string }>,
+      { user },
+    ) {
       if (!user) {
         throw new UnauthorizedError();
       }
@@ -53,7 +64,10 @@ export default {
         throw new ChannelNotFoundError();
       }
 
-      const channelMember = await ChannelMemberModel.findOne({ channelId, userId: user.id });
+      const channelMember = await ChannelMemberModel.findOne({
+        channelId,
+        userId: user.id,
+      });
       if (!channelMember) {
         throw new NotChannelMemberError();
       }
@@ -87,6 +101,6 @@ export default {
           },
         })),
       };
-    }
-  }
-}
+    },
+  },
+};
