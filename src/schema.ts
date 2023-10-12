@@ -44,6 +44,24 @@ export default `#graphql
     edges: [ChannelEdge!]!
   }
 
+  type Message {
+    id: ID!
+    text: String!
+    user: User!
+    channel: Channel!
+    timestamp: Int!
+  }
+
+  type MessageEdge {
+    cursor: String!
+    node: Message!
+  }
+
+  type MessageConnection {
+    pageInfo: PageInfo!
+    edges: [MessageEdge!]!
+  }
+
   type Query {
     me: User!
     channels(first: Int, after: String): ChannelConnection!
@@ -52,6 +70,8 @@ export default `#graphql
       first: Int,
       after: String
     ): ChannelMembersConnection!
+
+    messages(channelId: ID!, first: Int, after: String): MessageConnection!
   }
 
   type Mutation {
@@ -62,6 +82,7 @@ export default `#graphql
 
     createChannel(name: String!): Channel!
     addChannelMember(channelId: ID!, userId: ID!): Boolean!
+
     sendMessage(channelId: ID!, text: String!): Boolean!
   }
 

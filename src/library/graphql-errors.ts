@@ -89,3 +89,13 @@ export class NotChannelOwnerError extends GraphQLError {
     });
   }
 }
+
+export class NotChannelMemberError extends GraphQLError {
+  constructor() {
+    super('Not channel member', {
+      extensions: {
+        code: 'NOT_CHANNEL_MEMBER',
+      },
+    });
+  }
+}

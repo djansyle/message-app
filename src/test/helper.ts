@@ -240,3 +240,35 @@ export async function listChannelMembers(params: {
     requestToken,
   };
 }
+
+export async function sendMessage(params: {
+  accessToken?: string;
+  channelId: string;
+  text: string;
+}) {
+  const { accessToken: token } = await authenticateUser();
+  const requestToken = path(['accessToken'], params) || token;
+  const request = await client({
+    authorization: `Bearer ${requestToken}`,
+  });
+
+  const mutation = gql`
+    mutation SendMessage($channelId: ID!, $text: String!) {
+      sendMessage(channelId: $channelId, text: $text)
+    }
+  `;
+
+  const [error, response] = await tryToCatch(request.mutate, {
+    mutation,
+    variables: {
+      channelId: path(['channelId'], params),
+      text: path(['text'], params),
+    },
+  });
+
+  return {
+    error,
+    response,
+    requestToken,
+  };
+}
