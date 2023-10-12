@@ -1,4 +1,6 @@
 export default `#graphql
+  scalar Date
+
   type AuthPayload {
     accessToken: String!
   }
@@ -49,7 +51,7 @@ export default `#graphql
     text: String!
     user: User!
     channel: Channel!
-    timestamp: Int!
+    dateTimeCreated: Date!
   }
 
   type MessageEdge {

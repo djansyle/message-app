@@ -272,3 +272,59 @@ export async function sendMessage(params: {
     requestToken,
   };
 }
+
+export async function listMessages(params: {
+  accessToken?: string;
+  channelId: string;
+  first?: number;
+  after?: string;
+}) {
+  const { accessToken: token } = await authenticateUser();
+  const requestToken = path(['accessToken'], params) || token;
+  const request = await client({
+    authorization: `Bearer ${requestToken}`,
+  });
+
+  const query = gql`
+    query Messages($channelId: ID!, $first: Int, $after: String) {
+      messages(channelId: $channelId, first: $first, after: $after) {
+        pageInfo {
+          total
+          hasNext
+        }
+
+        edges {
+          cursor
+          node {
+            id
+            text
+            user {
+              id
+              email
+            }
+            channel {
+              id
+              name
+            }
+            dateTimeCreated
+          }
+        }
+      }
+    }
+  `;
+
+  const [error, response] = await tryToCatch(request.query, {
+    query,
+    variables: {
+      channelId: path(['channelId'], params),
+      first: path(['first'], params),
+      after: path(['after'], params),
+    },
+  });
+
+  return {
+    error,
+    response,
+    requestToken,
+  };
+}

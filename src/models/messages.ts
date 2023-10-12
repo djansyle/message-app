@@ -4,7 +4,7 @@ export interface Message {
   _id: string;
   text: string;
   userId: string;
-  dateTimeCreated: Date;
+  timestamp: Date;
 }
 
 const MessageSchema = new mongoose.Schema({
@@ -13,6 +13,10 @@ const MessageSchema = new mongoose.Schema({
     type: String,
   },
   text: {
+    required: true,
+    type: String,
+  },
+  channelId: {
     required: true,
     type: String,
   },
