@@ -1,5 +1,5 @@
 import * as uuid from 'uuid';
-import R from 'ramda';
+import * as R from 'ramda';
 
 import {
   ChannelNotFoundError,
